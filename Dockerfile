@@ -132,7 +132,7 @@ ENV HOME=/home
 ENV PAGER=less
 ENV REPO_CACHE=/home/.m2/repository
 
-RUN useradd -m -s /bin/bash ai
+RUN adduser -h /home -s /bin/bash -D ai -u 99999
 COPY inputrc /etc/
 RUN mkdir -p $REPO_CACHE
 
