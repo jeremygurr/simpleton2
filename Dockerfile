@@ -140,7 +140,7 @@ ARG TIME_ZONE=UTC
 RUN setup-timezone -z $TIME_ZONE
 ENV TIME_ZONE=$TIME_ZONE
 
-RUN mkdir -p $HOME/scripts $HOME/.ssh 
+RUN mkdir -p $HOME/scripts $HOME/.ssh /work
 RUN chmod 700 $HOME/.ssh
 RUN chown -R ai $HOME /work
 RUN rm /etc/motd
