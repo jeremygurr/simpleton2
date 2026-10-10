@@ -11158,7 +11158,7 @@ identify_os() {
           OS+=" $VERSION"
         fi
       fi
-      if [[ " $OS " == *" Debian "* ]]; then
+      if [[ " ${OS,,} " == *" debian "* ]]; then
         PACKAGE_MANAGER=apt
       fi
     ;;
