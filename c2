@@ -11260,6 +11260,8 @@ complete -r # remove built-in shell completion since it currently has problems
 if [[ -e /home/prompt_name ]]; then
   prompt_name=$(</home/prompt_name)
   prompt_name=${prompt_name%%*( )}
+else
+  prompt_name=util
 fi
 
 export prompt_name
@@ -11740,7 +11742,7 @@ begin_function
 
   mkdir $path || fail
   # write profile file
-  echo "source ~/c2
+  echo "source ~/bin/c2
 shell_profile_init
   " | trim_stream >$path/profile || fail
 
@@ -11932,6 +11934,7 @@ $endif
   RUN chown -R util $HOME /work
   RUN rm /etc/motd
 
+  USER util
   WORKDIR /work
   CMD [ "/bin/bash" ]
 
