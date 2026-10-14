@@ -11226,7 +11226,7 @@ docker_image_create_if_missing() {
       echo "Missing Dockerfile: $dockerfile . PWD=$PWD." >&2
       return 1
     fi
-    if ! docker image inspect $image &>/dev/null; then
+    if ! $DOCKER image inspect $image &>/dev/null; then
       $DOCKER build -f $dockerfile -t $image $base_folder || return 1
     fi
   end_function
