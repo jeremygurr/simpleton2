@@ -11735,8 +11735,9 @@ begin_function
   local path=/tmp/docker_util_image \
     c2_path=${c2_path:-.} \
     clean=${clean:-f} \
+    force=${force:-f} \
 
-  if $DOCKER image inspect util &>/dev/null && [[ $clean == f ]]; then
+  if $DOCKER image inspect util &>/dev/null && [[ $clean == f ]] && [[ $force == f ]]; then
     echo "util image already built."
     return 0
   fi
