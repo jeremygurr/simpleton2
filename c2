@@ -11218,6 +11218,7 @@ install_if_missing() {
 #   dockerfile
 #   base_folder
 docker_image_create_if_missing() {
+  local clean=${clean:-f}
   begin_function
     local base_folder=${base_folder:-.} \
       dockerfile=${dockerfile:-Dockerfile} \
@@ -11226,6 +11227,11 @@ docker_image_create_if_missing() {
       echo "Missing Dockerfile: $dockerfile . PWD=$PWD." >&2
       return 1
     fi
+
+    if [[ $clean == t ]]; then
+      $DOCKER image rm $image &>/dev/null
+    fi
+
     if ! $DOCKER image inspect $image &>/dev/null; then
       $DOCKER build -f $dockerfile -t $image $base_folder || return 1
     fi
@@ -11962,6 +11968,8 @@ $endif
     base_folder=$path \
     dockerfile=$path/Dockerfile \
     docker_image_create_if_missing || fail
+
+  rm -rf $path
 
 end_function
 handle_return
