@@ -11945,6 +11945,7 @@ $endif
   COPY inputrc /etc/
   COPY profile /home/.bashrc
   COPY c2 /usr/bin/c2
+  RUN chmod 755 /usr/bin/c2
   RUN mkdir -p $REPO_CACHE
 
   ARG TIME_ZONE=UTC
