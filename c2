@@ -11727,7 +11727,13 @@ build_docker_util_image() {
 begin_function
 
   local path=/tmp/docker_util_image \
-    c2_path=${c2_path:-.}
+    c2_path=${c2_path:-.} \
+    clean=${clean:-f} \
+
+  if $DOCKER image inspect util &>/dev/null && [[ $clean == f ]]; then
+    echo "util image already built."
+    return 0
+  fi
 
   if [[ ! -f $c2_path/c2 ]]; then
     log_fatal "Could not find c2. Either run this from the folder containing it, or give me the path with c2_path=..."
