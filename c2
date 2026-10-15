@@ -11831,6 +11831,7 @@ $endif
       docker \
       docs \
       expat-doc \
+      fd \
       file \
       file-doc \
       findutils \
@@ -11868,11 +11869,17 @@ $endif
       musl-locales \
       net-tools \
       net-tools-doc \
+      nodejs \
+      npm \
       openjdk21 \
       openrc \
       openrc-bash-completion \
       openrc-doc \
       openssh \
+      $end_of_packages
+
+  RUN --mount=type=cache,target=/var/cache/apk \
+    apk --allow-untrusted add \
       openssh-doc \
       openssl \
       pciutils \
@@ -11880,7 +11887,9 @@ $endif
       pcre2-doc \
       pkgconf-doc \
       procps \
+      python3 \
       readline-doc \
+      ripgrep \
       rsync \
       $end_of_packages
 
