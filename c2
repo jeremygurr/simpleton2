@@ -11755,7 +11755,7 @@ begin_function
 
   mkdir $path || fail
   # write profile file
-  echo 'source /usr/bin/c2
+  echo 'source ~/bin/c2
 export PATH=/home/.local/bin:$PATH
 shell_profile_init
 ' | trim_stream >$path/profile || fail
