@@ -11754,7 +11754,7 @@ begin_function
 
   mkdir $path || fail
   # write profile file
-  echo 'source ~/bin/c2
+  echo 'source /usr/bin/c2
 export PATH=/home/.local/bin:$PATH
 shell_profile_init
 ' | trim_stream >$path/profile || fail
@@ -11944,7 +11944,7 @@ $endif
   RUN mkdir -p /home/bin
   COPY inputrc /etc/
   COPY profile /home/.bashrc
-  COPY c2 /home/bin/c2
+  COPY c2 /usr/bin/c2
   RUN mkdir -p $REPO_CACHE
 
   ARG TIME_ZONE=UTC
