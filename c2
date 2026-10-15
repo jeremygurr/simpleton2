@@ -11945,6 +11945,7 @@ $endif
   RUN mkdir -p /home-template/bin
   COPY inputrc /etc/
   COPY profile /home-template/.bashrc
+  COPY profile /home-template/.profile
   COPY c2 /home-template/bin/c2
   RUN chmod 755 /home-template/bin/c2
   RUN mkdir -p $REPO_CACHE
