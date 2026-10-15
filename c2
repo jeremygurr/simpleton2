@@ -11942,11 +11942,11 @@ $endif
   ENV REPO_CACHE=/home/.m2/repository
 
   RUN adduser -h /home -s /bin/bash -D util -u 99999
-  RUN mkdir -p /home/bin
+  RUN mkdir -p /home-template/bin
   COPY inputrc /etc/
-  COPY profile /home/.bashrc
-  COPY c2 /usr/bin/c2
-  RUN chmod 755 /usr/bin/c2
+  COPY profile /home-template/.bashrc
+  COPY c2 /home-template/bin/c2
+  RUN chmod 755 /home-template/bin/c2
   RUN mkdir -p $REPO_CACHE
 
   ARG TIME_ZONE=UTC
@@ -11955,7 +11955,7 @@ $endif
 
   RUN mkdir -p $HOME/scripts $HOME/.ssh /work
   RUN chmod 700 $HOME/.ssh
-  RUN chown -R util $HOME /work
+  RUN chown -R util $HOME /work /home-template
   RUN rm /etc/motd
 
   USER util
