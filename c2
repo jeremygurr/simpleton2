@@ -11964,8 +11964,6 @@ $endif
 
   ' | trim_stream >$path/Dockerfile || fail
 
-  $DOCKER image rm util
-
   image=util \
     base_folder=$path \
     dockerfile=$path/Dockerfile \
