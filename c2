@@ -11218,7 +11218,7 @@ install_if_missing() {
 #   dockerfile
 #   base_folder
 docker_image_create_if_missing() {
-  local clean=${clean:-f}
+  local clean=${clean:-f} force=${force:-f}
   begin_function
     local base_folder=${base_folder:-.} \
       dockerfile=${dockerfile:-Dockerfile} \
@@ -11232,7 +11232,7 @@ docker_image_create_if_missing() {
       $DOCKER image rm $image &>/dev/null
     fi
 
-    if ! $DOCKER image inspect $image &>/dev/null; then
+    if [[ $force == t ]] || ! $DOCKER image inspect $image &>/dev/null; then
       $DOCKER build -f $dockerfile -t $image $base_folder || return 1
     fi
   end_function
