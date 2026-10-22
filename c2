@@ -11181,6 +11181,7 @@ identify_os() {
 
 # inputs: user
 user_create_if_missing() {
+  local uid=${uid:-} key_path=${key_path:-}
   if [[ " $OS " == *"MacOS"* ]]; then
     if ! dscl . -read /Users/$user RealName &>/dev/null; then
       echo "Can't create a user on MacOS." >&2
@@ -11188,9 +11189,48 @@ user_create_if_missing() {
     fi
   else
     if ! grep $user /etc/passwd &>/dev/null; then
-      useradd -m -s /bin/bash $user || return 1
+      local extra=
+      if [[ "$uid" ]]; then
+        extra="-u $uid"
+      fi
+      adduser -h /home/$user -s /bin/bash $extra $user || return 1
+    fi
+
+    if [[ ! -d /home/$user ]]; then
+      mkdir -p /home/$user || return 1
+      chown -R $user /home/$user || return 1
+    fi
+
+    local auth_file=/home/$user/.ssh/authorized_keys \
+      key_file=$key_path/$user.pub \
+
+    if [[ -f $key_file && ! -f $auth_file ]]; then
+      cp $key_file $auth_file || return 1
     fi
   fi
+}
+
+skills_add_if_missing() {
+  begin_function
+    local repo=${repo:-} skills=${skills:-} repo_path=${repo_path:-}
+
+    if [[ ! "$repo" ]]; then
+      log_fatal "Missing repo parameter for skills_add_if_missing"
+      fail1
+    fi
+
+    if [[ ! "$repo_path" ]]; then
+      log_fatal "Missing repo_path parameter for skills_add_if_missing"
+      fail1
+    fi
+
+    local target_path=$HOME/.pi/agent/skills
+
+    if [[ ! -d $repo_path ]]; then
+      git clone $repo $repo_path || fail
+    fi
+  end_function
+  handle_return
 }
 
 # inputs: packages
