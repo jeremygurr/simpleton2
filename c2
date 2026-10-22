@@ -11206,6 +11206,7 @@ user_create_if_missing() {
       key_file=$key_path/$user.pub \
 
     if [[ -f $key_file && ! -f $auth_file ]]; then
+      mkdir -p /home/$user/.ssh || return 1
       cp $key_file $auth_file || return 1
     fi
   fi
