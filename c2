@@ -11193,7 +11193,8 @@ user_create_if_missing() {
       if [[ "$uid" ]]; then
         extra="-u $uid"
       fi
-      adduser -h /home/$user -s /bin/bash $extra $user || return 1
+      #adduser -h /home/$user -s /bin/bash $extra $user || return 1
+      useradd -m -d /home/$user -s /bin/bash $extra $user || return 1
     fi
 
     if [[ ! -d /home/$user ]]; then
