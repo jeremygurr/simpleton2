@@ -11983,7 +11983,7 @@ $endif
   ENV PAGER=less
   ENV REPO_CACHE=/home/.m2/repository
 
-  RUN adduser -h $HOME -s /bin/bash -D util -u 99999
+  RUN adduser -h $HOME -s /bin/bash -D util -u 9999
   RUN mkdir -p $HOME/bin
   COPY inputrc /etc/
   COPY profile $HOME/.bashrc
