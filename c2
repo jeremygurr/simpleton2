@@ -11181,13 +11181,23 @@ identify_os() {
 
 # inputs: user
 user_create_if_missing() {
-  local uid=${uid:-} key_path=${key_path:-}
+  local uid=${uid:-} key_path=${key_path:-} clean=${clean:-f}
   if [[ " $OS " == *"MacOS"* ]]; then
     if ! dscl . -read /Users/$user RealName &>/dev/null; then
       echo "Can't create a user on MacOS." >&2
       return 1
     fi
   else
+
+    if [[ $clean == t ]]; then
+      if grep $user /etc/passwd &>/dev/null; then
+        deluser $user
+      fi
+      if [[ -d /home/$user ]]; then
+        rm -rf /home/$user
+      fi
+    fi
+
     if ! grep $user /etc/passwd &>/dev/null; then
       local extra=
       if [[ "$uid" ]]; then
@@ -11208,6 +11218,7 @@ user_create_if_missing() {
     if [[ -f $key_file && ! -f $auth_file ]]; then
       mkdir -p /home/$user/.ssh || return 1
       cp $key_file $auth_file || return 1
+      chown -R $user /home/$user/.ssh || return 1
     fi
   fi
 }
