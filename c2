@@ -11390,8 +11390,9 @@ docker_run_if_missing() {
       local env OIFS=$IFS
       local IFS=$'\n'
       for env in $envs; do
-        flags+="-e '$env' "
+        flags+="-e $env "
       done
+      IFS=$OIFS
     fi
 
     if [[ "$volumes" ]]; then
