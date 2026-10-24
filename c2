@@ -11192,6 +11192,18 @@ user_create_if_missing() {
     if [[ $clean == t ]]; then
       log_verbose "Cleaning user $user"
       if grep $user /etc/passwd &>/dev/null; then
+        local i=0
+        while pgrep -u $user &>/dev/null; do
+          if (( i == 0 )); then
+            log_verbose "Killing processes owned by $user"
+          fi
+          pkill -u $user
+          if (( i++ > 5 )); then
+            log_verbose "Failed to kill processes owned by $user"
+            break
+          fi
+          sleep 1
+        done
         deluser $user
       fi
       if [[ -d /home/$user ]]; then
