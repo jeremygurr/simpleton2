@@ -189,6 +189,7 @@ lifted_bash_init_light() {
   fi
 
   log_level_filter=${log_level_filter:-info}
+  resolve_log_var
 }
 
 # Run this near the top of scripts using this functionality, after the commandline parameters 
@@ -301,7 +302,7 @@ debugger_init() {
 }
 
 resolve_log_var() {
-  case $log in
+  case ${log:-} in
     o|f|e|w|i|v|t|a)
       log_level_filter=$log
       ;;
