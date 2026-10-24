@@ -11190,6 +11190,7 @@ user_create_if_missing() {
   else
 
     if [[ $clean == t ]]; then
+      log_verbose "Cleaning user $user"
       if grep $user /etc/passwd &>/dev/null; then
         deluser $user
       fi
@@ -11337,12 +11338,55 @@ docker_image_create_if_missing() {
   handle_return
 }
 
-# inputs: image name command flags
+# inputs: 
+#   image 
+#   name 
+#   command
+#   ports
+#   env
+#   background
 docker_run_if_missing() {
-  flags="-d --rm"
-  if !  $DOCKER container inspect -f '{{.State.Running}}' $name 2>/dev/null | grep -q true; then
-    $DOCKER run $flags $iamge $cmomand || return 1
-  fi
+
+  local image=$image \
+    name=$name \
+    command=${command:-} \
+    ports=${ports:-} \
+    envs=${envs:-} \
+    background=${background:-t} \
+
+  begin_function
+    local flags=
+
+    if [[ $background == t ]]; then
+      flags+="-d --restart unless-stopped "
+    else
+      flags+="--rm "
+    fi
+
+    if [[ "$ports" ]]; then
+      local port
+      for port in $ports; do
+        flags+="-p $port "
+      done
+    fi
+
+    if [[ "$envs" ]]; then
+      local env
+      for env in $envs; do
+        flags+="-e $env "
+      done
+    fi
+
+    if ! $DOCKER container inspect -f '{{.State.Running}}' $name 2>/dev/null | grep -q true; then
+      if $DOCKER container inspect $name &>/dev/null; then
+        log_verbose "$DOCKER container rm $name"
+        $DOCKER container rm $name || fail
+      fi
+      log_verbose "$DOCKER run $flags $iamge $cmomand"
+      $DOCKER run $flags $iamge $cmomand || fail
+    fi
+  end_function
+  handle_return
 }
 
 ### file: ./11-shell-profile.bash
