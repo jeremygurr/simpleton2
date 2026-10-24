@@ -11339,20 +11339,23 @@ docker_image_create_if_missing() {
 }
 
 # inputs: 
+#   background
+#   command
+#   env
 #   image 
 #   name 
-#   command
 #   ports
-#   env
-#   background
+#   volumes
 docker_run_if_missing() {
 
-  local image=$image \
-    name=$name \
-    command=${command:-} \
-    ports=${ports:-} \
-    envs=${envs:-} \
+  local \
     background=${background:-t} \
+    command=${command:-} \
+    envs=${envs:-} \
+    image=$image \
+    name=$name \
+    ports=${ports:-} \
+    volumes=${volumes:-} \
 
   begin_function
     local flags=
@@ -11374,6 +11377,13 @@ docker_run_if_missing() {
       local env
       for env in $envs; do
         flags+="-e $env "
+      done
+    fi
+
+    if [[ "$volumes" ]]; then
+      local volume
+      for volume in $volumes; do
+        flags+="-v $volume "
       done
     fi
 
