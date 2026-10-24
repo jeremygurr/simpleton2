@@ -11404,8 +11404,8 @@ docker_run_if_missing() {
         log_verbose "$DOCKER container rm $name"
         $DOCKER container rm $name || fail
       fi
-      log_verbose "$DOCKER run $flags $iamge $cmomand"
-      $DOCKER run $flags $iamge $cmomand || fail
+      log_verbose "$DOCKER run $flags $image $command"
+      $DOCKER run $flags $image $command || fail
     fi
   end_function
   handle_return
