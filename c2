@@ -11225,7 +11225,11 @@ user_create_if_missing() {
 
 skills_add_if_missing() {
   begin_function
-    local repo=${repo:-} skills=${skills:-} repo_path=${repo_path:-}
+    local repo=${repo:-} \
+      skills=${skills:-} \
+      repo_path=${repo_path:-} \
+      update=${update:-f} \
+      clean=${clean:-f} \
 
     if [[ ! "$repo" ]]; then
       log_fatal "Missing repo parameter for skills_add_if_missing"
@@ -11237,33 +11241,74 @@ skills_add_if_missing() {
       fail1
     fi
 
+    if [[ $clean == t && -d $repo_path ]]; then
+      rm -rf $repo_path || fail
+    fi
+
     local target_path=$HOME/.pi/agent/skills
+
+    if [[ ! -d $target_path ]]; then
+      mkdir -p $target_path || fail
+    fi
 
     if [[ ! -d $repo_path ]]; then
       git clone $repo $repo_path || fail
+    elif [[ $update ==  t ]]; then
+      git -C $repo_path pull || fail
     fi
+
+    if [[ ! "$skills" ]]; then
+      if [[ -d $repo_path/skills ]]; then
+        skills=skills
+      else
+        log_fatal "Couldn't find skills in $repo_path. Specify the subfolders containing skills in the skills var."
+        fail1
+      fi
+    fi
+
+    local skill_path found_skills= skill_name
+    begin_for skill_path in $skills; doo
+      found_skills+=" $(find1 $repo_path/$skill_path -type d)" || fail
+    end_for
+    
+    begin_for skill_path in $found_skills; doo
+      if [[ -f $skill/SKILL.md ]]; then
+        skill_name=${skill##*/}
+        if [[ $clean == t && -d $target_path/$skill_name ]]; then
+          rm -rf $target_path/$skill_name || fail
+        fi
+        if [[ $update == t || ! -d $target_path/$skill_name ]]; then
+          rsync -a --delete $skill/ $target_path/$skill_name/ || fail
+        fi
+      fi
+    end_for
+
   end_function
   handle_return
 }
 
 # inputs: packages
 install_if_missing() {
-  if [[ " $OS " == *"MacOS"* ]]; then
-    echo "Can't check or install packages on MacOS yet." >&2
-    return 1
-  else
-    case $PACKAGE_MANAGER in
-      apt)
-        if ! dpkg -s $packages &>/dev/null; then
-          DEBIAN_FRONTEND=noninteractive apt-get install -y $packages || return 1
-        fi
-      ;;
-      *)
-        echo "I don't know how to handle this PACKAGE_MANAGER yet: $PACKAGE_MANAGER" >&2
-        return 1
-      ;;
-    esac
-  fi
+  local packages=$packages
+  begin_function
+    if [[ " $OS " == *"MacOS"* ]]; then
+      echo "Can't check or install packages on MacOS yet." >&2
+      fail1
+    else
+      case $PACKAGE_MANAGER in
+        apt)
+          if ! dpkg -s $packages &>/dev/null; then
+            DEBIAN_FRONTEND=noninteractive apt-get install -y $packages || fail
+          fi
+        ;;
+        *)
+          echo "I don't know how to handle this PACKAGE_MANAGER yet: $PACKAGE_MANAGER" >&2
+          fail1
+        ;;
+      esac
+    fi
+  end_function
+  handle_return
 }
 
 # inputs: 
