@@ -11371,7 +11371,7 @@ docker_run_if_missing() {
     volumes=${volumes:-} \
 
   begin_function
-    local flags=
+    local flags="--name $name "
 
     if [[ $background == t ]]; then
       flags+="-d --restart unless-stopped "
