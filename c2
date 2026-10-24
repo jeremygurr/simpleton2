@@ -11408,7 +11408,7 @@ docker_run_if_missing() {
         $DOCKER container rm $name || fail
       fi
       log_verbose "$DOCKER run $flags $image $command"
-      $DOCKER run $flags $image $command || fail
+      eval "$DOCKER run $flags $image $command" || fail
     fi
   end_function
   handle_return
