@@ -11376,7 +11376,7 @@ docker_run_if_missing() {
     if [[ $background == t ]]; then
       flags+="-d --restart unless-stopped "
     else
-      flags+="--rm "
+      flags+="--rm -it "
     fi
 
     if [[ "$ports" ]]; then
