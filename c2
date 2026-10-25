@@ -11286,13 +11286,13 @@ skills_add_if_missing() {
     end_for
     
     begin_for skill_path in $found_skills; doo
-      if [[ -f $skill/SKILL.md ]]; then
-        skill_name=${skill##*/}
+      if [[ -f $skill_path/SKILL.md ]]; then
+        skill_name=${skill_path##*/}
         if [[ $clean == t && -d $target_path/$skill_name ]]; then
           rm -rf $target_path/$skill_name || fail
         fi
         if [[ $update == t || ! -d $target_path/$skill_name ]]; then
-          rsync -a --delete $skill/ $target_path/$skill_name/ || fail
+          rsync -a --delete $skill_path/ $target_path/$skill_name/ || fail
         fi
       fi
     end_for
