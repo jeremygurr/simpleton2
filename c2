@@ -11923,7 +11923,7 @@ begin_function
   mkdir $path || fail
   # write profile file
   echo 'source ~/bin/c2
-export PATH=/home/.local/bin:$PATH
+export PATH=/home/bin:/home/.local/bin:$PATH
 shell_profile_init
 ' | trim_stream >$path/profile || fail
 
