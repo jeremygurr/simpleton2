@@ -12166,6 +12166,8 @@ $endif
   RUN chmod 700 $HOME/.ssh
   RUN chown -R util /work /home
   RUN rm /etc/motd
+  RUN echo "util:100000:65536" >> /etc/subuid && \
+      echo "util:100000:65536" >> /etc/subgid
 
   USER util
   WORKDIR /work
