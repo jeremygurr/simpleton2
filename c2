@@ -11237,7 +11237,47 @@ user_create_if_missing() {
   fi
 }
 
-skills_add_if_missing() {
+npx_skills_add_if_missing() {
+  begin_function
+    local repo=${repo:-} \
+      skills=${skills:-} \
+      update=${update:-f} \
+      clean=${clean:-f} \
+
+    if [[ ! "$repo" ]]; then
+      log_fatal "Missing repo parameter for npx_skills_add_if_missing"
+      fail1
+    fi
+
+    if [[ ! "$skills" ]]; then
+      log_fatal "Missing skills parameter for npx_skills_add_if_missing"
+      fail1
+    fi
+
+    local target_path=$HOME/.pi/agent/skills skill
+
+    if [[ ! -d $target_path ]]; then
+      mkdir -p $target_path || fail
+    fi
+
+    local repo_pulled=f
+    for skill in $skills; do
+      if [[ $clean == t && -f $target_path/$skill ]]; then
+        rm -rf $target_path/$skill || fail
+      fi
+      if [[ ! -e $target_path/$skill || $update == t ]]; then
+        if [[ $repo_pulled == f ]]; then
+          repo_pulled=t
+          npx skills add $repo --skill $skill -a pi -g -y || fail
+        fi
+      fi
+    done
+
+  end_function
+  handle_return
+}
+
+repo_skills_add_if_missing() {
   begin_function
     local repo=${repo:-} \
       skills=${skills:-} \
@@ -11246,12 +11286,12 @@ skills_add_if_missing() {
       clean=${clean:-f} \
 
     if [[ ! "$repo" ]]; then
-      log_fatal "Missing repo parameter for skills_add_if_missing"
+      log_fatal "Missing repo parameter for repo_skills_add_if_missing"
       fail1
     fi
 
     if [[ ! "$repo_path" ]]; then
-      log_fatal "Missing repo_path parameter for skills_add_if_missing"
+      log_fatal "Missing repo_path parameter for repo_skills_add_if_missing"
       fail1
     fi
 
