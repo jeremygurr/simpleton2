@@ -12107,6 +12107,7 @@ $endif
       pcre-doc \
       pcre2-doc \
       pkgconf-doc \
+      podman \
       procps \
       python3 \
       readline-doc \
