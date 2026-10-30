@@ -11963,7 +11963,7 @@ begin_function
     force=${force:-f} \
 
   if $DOCKER image inspect util &>/dev/null && [[ $clean == f ]] && [[ $force == f ]]; then
-    echo "util image already built."
+    log_verbose "util image already built."
     return 0
   fi
 
