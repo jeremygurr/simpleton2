@@ -11365,6 +11365,16 @@ install_if_missing() {
   handle_return
 }
 
+docker_network_create_if_missing() {
+  local clean=${clean:-f} name=$name
+  begin_function
+    if ! $DOCKER network exists $name; then
+      $DOCKER network create $name || fail
+    fi
+  end_function
+  handle_return
+}
+
 # inputs: 
 #   image 
 #   dockerfile
@@ -11381,6 +11391,9 @@ docker_image_create_if_missing() {
     fi
 
     if [[ $clean == t ]]; then
+      if $DOCKER container inspect -f '{{.State.Running}}' $name 2>/dev/null | grep -q true; then
+        $DOCKER stop $image || fail
+      fi
       $DOCKER image rm $image &>/dev/null
     fi
 
@@ -11409,6 +11422,7 @@ docker_run_if_missing() {
     name=$name \
     ports=${ports:-} \
     volumes=${volumes:-} \
+    network=${network:-} \
 
   begin_function
     local flags="--name $name "
@@ -11417,6 +11431,10 @@ docker_run_if_missing() {
       flags+="-d --restart unless-stopped "
     else
       flags+="--rm -it "
+    fi
+
+    if [[ "$network" ]]; then
+      flags+="--network $network "
     fi
 
     if [[ "$ports" ]]; then
@@ -12166,8 +12184,6 @@ $endif
   RUN chmod 700 $HOME/.ssh
   RUN chown -R util /work /home
   RUN rm /etc/motd
-  RUN echo "util:100000:65536" >> /etc/subuid && \
-      echo "util:100000:65536" >> /etc/subgid
 
   USER util
   WORKDIR /work
