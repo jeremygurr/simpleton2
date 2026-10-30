@@ -11549,6 +11549,26 @@ get_short_path() {
   short_path=$p
 }
 
+encrypt() {
+  local from=$1; shift
+  local to=$1; shift
+  if [[ ! "$to" ]]; then
+    echo "Usage: encrypt {from file} {to file}" >&2
+    return 1
+  fi
+  openssl enc -aes-256-cbc -iter 123456 -salt -pbkdf2 -in "$from" -out "$to"
+}
+
+decrypt() {
+  local from=$1; shift
+  local to=$1; shift
+  if [[ ! "$to" ]]; then
+    echo "Usage: decrypt {from file} {to file}" >&2
+    return 1
+  fi
+  openssl enc -d -aes-256-cbc -iter 123456 -salt -pbkdf2 -in "$from" -out "$to"
+}
+
 # saves existing dir before changing to the given dir
 cd() {
 
