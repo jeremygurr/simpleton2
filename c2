@@ -11379,8 +11379,9 @@ docker_network_create_if_missing() {
 #   image 
 #   dockerfile
 #   base_folder
+#   build_args
 docker_image_create_if_missing() {
-  local clean=${clean:-f} force=${force:-f}
+  local clean=${clean:-f} force=${force:-f} build_args=${build_args:-}
   begin_function
     local base_folder=${base_folder:-.} \
       dockerfile=${dockerfile:-Dockerfile} \
@@ -11391,14 +11392,29 @@ docker_image_create_if_missing() {
     fi
 
     if [[ $clean == t ]]; then
-      if $DOCKER container inspect -f '{{.State.Running}}' $name 2>/dev/null | grep -q true; then
+      if $DOCKER container inspect -f '{{.State.Running}}' $image 2>/dev/null | grep -q true; then
         $DOCKER stop $image || fail
       fi
       $DOCKER image rm $image &>/dev/null
     fi
 
+    local flags=
+    if [[ "$build_args" ]]; then
+      local build_arg
+      for build_arg in $build_args; do
+        local -n v=$build_arg
+        if [[ "${v:-}" ]]; then
+          flags+="--build-arg $build_arg=$v "
+        fi
+      done
+    fi
+
     if [[ $force == t ]] || ! $DOCKER image inspect $image &>/dev/null; then
-      $DOCKER build -f $dockerfile -t $image $base_folder || return 1
+      if [[ $clean == t ]]; then
+        flags+="--no-cache "
+      fi
+      log_verbose "$DOCKER build $flags -f $dockerfile -t $image $base_folder"
+      $DOCKER build $flags -f $dockerfile -t $image $base_folder || return 1
     fi
   end_function
   handle_return
@@ -11973,6 +11989,7 @@ small_prompt() {
 
 big_prompt
 }
+
 ### file: ./12-docker-util-image.bash
 build_docker_util_image() {
 begin_function
@@ -12043,16 +12060,12 @@ $endif
 
   echo '
 
-  ARG ALPINE_IMAGE=alpine:3.23
-
+  ARG ALPINE_IMAGE=alpine:3.24.2
   FROM $ALPINE_IMAGE
 
-  USER root
-
-  ARG NO_PROXY=
-  ARG HTTPS_PROXY=
-  ARG HTTP_PROXY=
   ARG ALPINE_REPO=https://dl-cdn.alpinelinux.org/alpine/
+
+  USER root
 
   RUN sed -i "s@https://dl-cdn.alpinelinux.org/alpine/@$ALPINE_REPO@g" /etc/apk/repositories 
 
@@ -12214,6 +12227,7 @@ $endif
   image=util \
     base_folder=$path \
     dockerfile=$path/Dockerfile \
+    build_args="TIME_ZONE ALPINE_IMAGE ALPINE_REPO NO_PROXY HTTPS_PROXY HTTP_PROXY" \
     docker_image_create_if_missing || fail
 
   rm -rf $path
