@@ -11254,22 +11254,20 @@ npx_skills_add_if_missing() {
       fail1
     fi
 
-    local target_path=$HOME/.pi/agent/skills skill
+    local target_path=$HOME/.pi/agent/skills skill \
+      general_target_path=$HOME/.agents/skills \
 
     if [[ ! -d $target_path ]]; then
       mkdir -p $target_path || fail
     fi
 
-    local repo_pulled=f
     for skill in $skills; do
       if [[ $clean == t && -f $target_path/$skill ]]; then
         rm -rf $target_path/$skill || fail
       fi
-      if [[ ! -e $target_path/$skill || $update == t ]]; then
-        if [[ $repo_pulled == f ]]; then
-          repo_pulled=t
-          npx skills add $repo --skill $skill -a pi -g -y || fail
-        fi
+      if [[ ! -e $target_path/$skill && ! -e $general_target_path/$skill || $update == t ]]; then
+        log_verbose "Adding npx skill $skill_name"
+        npx skills add $repo --skill $skill -a pi -g -y || fail
       fi
     done
 
@@ -11332,6 +11330,7 @@ repo_skills_add_if_missing() {
           rm -rf $target_path/$skill_name || fail
         fi
         if [[ $update == t || ! -d $target_path/$skill_name ]]; then
+          log_verbose "Adding repo skill $skill_name"
           rsync -a --delete $skill_path/ $target_path/$skill_name/ || fail
         fi
       fi
@@ -11368,8 +11367,16 @@ install_if_missing() {
 docker_network_create_if_missing() {
   local clean=${clean:-f} name=$name
   begin_function
-    if ! $DOCKER network exists $name; then
-      $DOCKER network create $name || fail
+    if [[ $DOCKER == podman ]]; then
+      if ! $DOCKER network exists $name; then
+        log_verbose "Creating docker network $name"
+        $DOCKER network create $name || fail
+      fi
+    else
+      if ! $DOCKER network ls | grep $name &>/dev/null ; then
+        log_verbose "Creating docker network $name"
+        $DOCKER network create $name || fail
+      fi
     fi
   end_function
   handle_return
@@ -11387,8 +11394,8 @@ docker_image_create_if_missing() {
       dockerfile=${dockerfile:-Dockerfile} \
 
     if [[ ! -f "$dockerfile" ]]; then
-      echo "Missing Dockerfile: $dockerfile . PWD=$PWD." >&2
-      return 1
+      log_fatal "Missing Dockerfile: $dockerfile . PWD=$PWD."
+      fail1
     fi
 
     if [[ $clean == t ]]; then
@@ -11413,8 +11420,8 @@ docker_image_create_if_missing() {
       if [[ $clean == t ]]; then
         flags+="--no-cache "
       fi
-      log_verbose "$DOCKER build $flags -f $dockerfile -t $image $base_folder"
-      $DOCKER build $flags -f $dockerfile -t $image $base_folder || return 1
+      log_verbose "$DOCKER build $flags -f - -t $image $base_folder <$dockerfile"
+      $DOCKER build $flags -f - -t $image $base_folder <$dockerfile || return 1
     fi
   end_function
   handle_return
@@ -11464,7 +11471,11 @@ docker_run_if_missing() {
       local env OIFS=$IFS
       local IFS=$'\n'
       for env in $envs; do
-        flags+="-e '$env' "
+        IFS=$OIFS
+        trim_ws env
+        if [[ "$env" ]]; then
+          flags+="-e '$env' "
+        fi
       done
       IFS=$OIFS
     fi
@@ -12003,6 +12014,8 @@ begin_function
     log_verbose "util image already built."
     return 0
   fi
+
+  log_verbose "Building util image."
 
   if [[ ! -f $c2_path/c2 ]]; then
     log_fatal "Could not find c2. Either run this from the folder containing it, or give me the path with c2_path=..."
