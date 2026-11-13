@@ -12169,7 +12169,7 @@ $endif
       net-tools \
       net-tools-doc \
       nodejs \
-      npm@12 \
+      npm \
       openjdk21 \
       openrc \
       openrc-bash-completion \
@@ -12226,6 +12226,8 @@ $endif
   ENV HOME=/home
   ENV PAGER=less
   ENV REPO_CACHE=/home/.m2/repository
+
+  RUN npm install -g npm@12
 
   RUN adduser -h $HOME -s /bin/bash -D util -u 9999
   RUN mkdir -p $HOME/bin
