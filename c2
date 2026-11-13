@@ -11351,7 +11351,7 @@ install_if_missing() {
   local packages=$packages
   begin_function
     if [[ " $OS " == *"MacOS"* ]]; then
-      echo "Can't check or install packages on MacOS yet." >&2
+      log_fatal "Can't check or install packages on MacOS yet."
       fail1
     else
       case $PACKAGE_MANAGER in
@@ -11361,7 +11361,7 @@ install_if_missing() {
           fi
         ;;
         *)
-          echo "I don't know how to handle this PACKAGE_MANAGER yet: $PACKAGE_MANAGER" >&2
+          log_fatal "I don't know how to handle this PACKAGE_MANAGER yet: $PACKAGE_MANAGER"
           fail1
         ;;
       esac
@@ -11406,8 +11406,10 @@ docker_image_create_if_missing() {
 
     if [[ $clean == t ]]; then
       if $DOCKER container inspect -f '{{.State.Running}}' $image 2>/dev/null | grep -q true; then
+        log_verbose "$DOCKER stop $image"
         $DOCKER stop $image || fail
       fi
+      log_verbose "$DOCKER image rm $image"
       $DOCKER image rm $image &>/dev/null
     fi
 
