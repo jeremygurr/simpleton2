@@ -12131,6 +12131,7 @@ $endif
       findutils \
       findutils-doc \
       fstrm-doc \
+      g++ \
       $end_of_packages
 
   RUN --mount=type=cache,target=/var/cache/apk \
@@ -12153,6 +12154,8 @@ $endif
       libretls-doc \
       libxml2-doc \
       linux-pam-doc \
+      linux-headers \
+      make \
       $end_of_packages
 
   RUN --mount=type=cache,target=/var/cache/apk \
