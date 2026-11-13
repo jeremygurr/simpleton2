@@ -12084,7 +12084,7 @@ $endif
 
   echo '
 
-  ARG ALPINE_IMAGE=alpine:3.24.2
+  ARG ALPINE_IMAGE=alpine:3.24.4
   FROM $ALPINE_IMAGE
 
   ARG ALPINE_REPO=https://dl-cdn.alpinelinux.org/alpine/
@@ -12169,7 +12169,7 @@ $endif
       net-tools \
       net-tools-doc \
       nodejs \
-      npm \
+      npm@12 \
       openjdk21 \
       openrc \
       openrc-bash-completion \
