@@ -11452,6 +11452,7 @@ docker_run_if_missing() {
     ports=${ports:-} \
     volumes=${volumes:-} \
     network=${network:-} \
+    clean=${clean:-f} \
 
   begin_function
     local flags="--name $name "
@@ -11493,8 +11494,11 @@ docker_run_if_missing() {
       done
     fi
 
-    if ! $DOCKER container inspect -f '{{.State.Running}}' $name 2>/dev/null | grep -q true; then
+    if ! $DOCKER container inspect -f '{{.State.Running}}' $name 2>/dev/null | grep -q true \
+      || [[ $clean == t ]]; then
       if $DOCKER container inspect $name &>/dev/null; then
+        log_verbose "$DOCKER container stop $name"
+        $DOCKER container stop $name
         log_verbose "$DOCKER container rm $name"
         $DOCKER container rm $name || fail
       fi
